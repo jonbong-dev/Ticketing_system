@@ -117,6 +117,45 @@ function formatCategory(category: string): string {
 }
 
 /**
+ * Send password reset email with temporary password
+ */
+export async function sendPasswordResetEmail(
+  email: string,
+  name: string,
+  temporaryPassword: string
+): Promise<boolean> {
+  if (!isEmailConfigured()) {
+    console.warn('EmailJS not configured. Password reset email not sent.');
+    return false;
+  }
+
+  initializeEmailJS();
+
+  try {
+    const templateParams = {
+      to_email: email,
+      to_name: name,
+      temporary_password: temporaryPassword,
+      company_name: EMAIL_CONFIG.COMPANY_NAME,
+      support_phone: EMAIL_CONFIG.SUPPORT_PHONE,
+      reset_link: window.location.origin,
+    };
+
+    const response = await emailjs.send(
+      EMAIL_CONFIG.SERVICE_ID,
+      EMAIL_CONFIG.TEMPLATE_ID,
+      templateParams as unknown as Record<string, unknown>
+    );
+
+    console.log('✅ Password reset email sent successfully:', response.status);
+    return true;
+  } catch (error) {
+    console.error('❌ Failed to send password reset email:', error);
+    return false;
+  }
+}
+
+/**
  * Check if EmailJS is properly configured
  */
 export function isEmailConfigured(): boolean {

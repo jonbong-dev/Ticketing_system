@@ -1,20 +1,23 @@
 import { useState } from 'react';
-import { login, registerCustomer } from './authService';
+import { login, registerCustomer, findUserByEmail, generateTemporaryPassword, resetPassword } from './authService';
+import { sendPasswordResetEmail } from './emailService';
 import { User } from './authTypes';
-import { Mail, Lock, User as UserIcon, Building2, Phone, LogIn, UserPlus } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Building2, Phone, LogIn, UserPlus, KeyRound } from 'lucide-react';
 
 interface LoginPageProps {
   onLogin: (user: User) => void;
 }
 
 export default function LoginPage({ onLogin }: LoginPageProps) {
-  const [mode, setMode] = useState<'select' | 'customer-login' | 'admin-login' | 'customer-register'>('select');
+  const [mode, setMode] = useState<'select' | 'customer-login' | 'admin-login' | 'customer-register' | 'forgot-password'>('select');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [company, setCompany] = useState('');
   const [error, setError] = useState('');
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +54,33 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setResetSuccess(false);
+    
+    const user = findUserByEmail(email);
+    if (!user) {
+      setError('Email not found');
+      return;
+    }
+    
+    // Generate temporary password
+    const tempPassword = generateTemporaryPassword();
+    
+    // Send email with temporary password
+    const emailSent = await sendPasswordResetEmail(email, user.name, tempPassword);
+    
+    if (emailSent) {
+      // Update user's password to temporary password
+      await resetPassword(email, tempPassword);
+      setResetSuccess(true);
+      setResetEmail(email);
+    } else {
+      setError('Failed to send reset email. Please contact support.');
+    }
+  };
+
   const resetForm = () => {
     setEmail('');
     setPassword('');
@@ -58,6 +88,8 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     setPhone('');
     setCompany('');
     setError('');
+    setResetSuccess(false);
+    setResetEmail('');
   };
 
   if (mode === 'select') {
@@ -129,6 +161,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   const isCustomerLogin = mode === 'customer-login';
   const isAdminLogin = mode === 'admin-login';
   const isRegister = mode === 'customer-register';
+  const isForgotPassword = mode === 'forgot-password';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 flex items-center justify-center p-4">
@@ -151,11 +184,13 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               {isCustomerLogin && 'Customer Login'}
               {isAdminLogin && 'Admin Login'}
               {isRegister && 'Create Customer Account'}
+              {isForgotPassword && 'Reset Password'}
             </h2>
             <p className="text-gray-600 mt-2">
               {isCustomerLogin && 'Access your support tickets'}
               {isAdminLogin && 'Manage support tickets'}
               {isRegister && 'Register to submit support requests'}
+              {isForgotPassword && 'We\'ll send you a temporary password'}
             </p>
           </div>
 
@@ -165,7 +200,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             </div>
           )}
 
-          <form onSubmit={isRegister ? handleRegister : handleLogin} className="space-y-4">
+          <form onSubmit={isForgotPassword ? handleForgotPassword : (isRegister ? handleRegister : handleLogin)} className="space-y-4">
             {isRegister && (
               <>
                 <div>
@@ -236,27 +271,31 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="••••••••"
-                />
+            {!isForgotPassword && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="••••••••"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             <button
               type="submit"
               className={`w-full py-3 rounded-lg font-semibold text-white transition-colors flex items-center justify-center gap-2 ${
-                isAdminLogin
+                isForgotPassword
+                  ? 'bg-orange-600 hover:bg-orange-700'
+                  : isAdminLogin
                   ? 'bg-indigo-600 hover:bg-indigo-700'
                   : 'bg-blue-600 hover:bg-blue-700'
               }`}
@@ -265,6 +304,11 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                 <>
                   <UserPlus className="w-5 h-5" />
                   Create Account
+                </>
+              ) : isForgotPassword ? (
+                <>
+                  <KeyRound className="w-5 h-5" />
+                  Send Reset Link
                 </>
               ) : (
                 <>
@@ -276,12 +320,33 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           </form>
 
           {isCustomerLogin && (
+            <>
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => { setMode('forgot-password'); resetForm(); }}
+                  className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                >
+                  Forgot your password?
+                </button>
+              </div>
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => { setMode('customer-register'); resetForm(); }}
+                  className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                >
+                  Don't have an account? Register here
+                </button>
+              </div>
+            </>
+          )}
+
+          {isAdminLogin && (
             <div className="mt-6 text-center">
               <button
-                onClick={() => { setMode('customer-register'); resetForm(); }}
+                onClick={() => { setMode('forgot-password'); resetForm(); }}
                 className="text-blue-600 hover:text-blue-700 font-medium text-sm"
               >
-                Don't have an account? Register here
+                Forgot your password?
               </button>
             </div>
           )}
@@ -295,6 +360,29 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                 Already have an account? Login here
               </button>
             </div>
+          )}
+
+          {isForgotPassword && (
+            <>
+              {resetSuccess ? (
+                <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                  <p className="text-sm text-green-800 font-medium">
+                    ✓ Password reset email sent to {resetEmail}
+                  </p>
+                  <p className="text-xs text-green-700 mt-2">
+                    Check your inbox for a temporary password. You can use it to login and then change it.
+                  </p>
+                </div>
+              ) : null}
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => { setMode('select'); resetForm(); setResetSuccess(false); }}
+                  className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                >
+                  Back to login
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>

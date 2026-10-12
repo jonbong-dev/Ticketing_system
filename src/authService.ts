@@ -119,6 +119,36 @@ export async function registerCustomer(userData: {
   return newUser;
 }
 
+export async function resetPassword(email: string, newPassword: string): Promise<boolean> {
+  const users = getUsers();
+  const userIndex = users.findIndex(u => u.email === email);
+  
+  if (userIndex === -1) {
+    return false;
+  }
+  
+  // Hash the new password
+  const hashedPassword = await hashPassword(newPassword);
+  users[userIndex].password = hashedPassword;
+  
+  saveUsers(users);
+  return true;
+}
+
+export function generateTemporaryPassword(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let password = '';
+  for (let i = 0; i < 10; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+}
+
+export function findUserByEmail(email: string): User | null {
+  const users = getUsers();
+  return users.find(u => u.email === email) || null;
+}
+
 export function isAdmin(): boolean {
   const user = getCurrentUser();
   return user?.role === 'admin';

@@ -219,6 +219,102 @@ export const EMAIL_CONFIG = {
 
 ---
 
+## Step 4: Create Password Reset Template
+
+For the "Forgot Password" feature, you need a second email template:
+
+1. Go to **Email Templates** in your dashboard
+2. Click **Create New Template**
+3. Set up the template as follows:
+
+### Password Reset Template Content
+
+**Subject:**
+```
+Password Reset - JEB Ticketing System
+```
+
+**Content (HTML):**
+```html
+<html>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%); padding: 20px; border-radius: 8px 8px 0 0;">
+      <h1 style="color: white; margin: 0; font-size: 24px;">JEB Innovations & Technologies</h1>
+      <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0; font-size: 14px;">Password Reset Request</p>
+    </div>
+    
+    <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none;">
+      <h2 style="color: #1f2937; margin-top: 0;">Hello {{to_name}},</h2>
+      
+      <p style="color: #4b5563;">We received a request to reset your password for the JEB Ticketing System.</p>
+      
+      <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+        <p style="margin: 0 0 10px 0; color: #92400e; font-weight: 500;">Your Temporary Password:</p>
+        <p style="margin: 0; font-size: 24px; font-weight: bold; color: #d97706; font-family: monospace; letter-spacing: 2px;">{{temporary_password}}</p>
+      </div>
+      
+      <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <p style="margin: 0; color: #92400e; font-size: 14px;">
+          <strong>⚠️ Important:</strong> Please change your password immediately after logging in with this temporary password.
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="{{reset_link}}" style="background: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;">
+          Login to JEB Ticketing System
+        </a>
+      </div>
+      
+      <p style="color: #6b7280; font-size: 14px;">
+        If you didn't request a password reset, please ignore this email or contact support at {{support_phone}}.
+      </p>
+    </div>
+    
+    <div style="background: #1f2937; padding: 20px; border-radius: 0 0 8px 8px; text-align: center;">
+      <p style="color: rgba(255,255,255,0.7); margin: 0; font-size: 12px;">
+        {{company_name}}<br>
+        Support: {{support_phone}}
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+```
+
+**Alternative Simple Template (Plain Text):**
+```
+Password Reset - JEB Ticketing System
+
+Hello {{to_name}},
+
+We received a request to reset your password.
+
+Your Temporary Password: {{temporary_password}}
+
+⚠️ Important: Please change your password immediately after logging in.
+
+Login at: {{reset_link}}
+
+If you didn't request this, please ignore this email.
+
+---
+{{company_name}}
+Support: {{support_phone}}
+```
+
+4. In the **Settings** tab of your template:
+   - Set **To Email** to: `{{to_email}}`
+   - Set **From Name** to: `JEB Ticketing System`
+   - Set **Reply To** to: `{{support_phone}}` (or your support email)
+
+5. Click **Save**
+6. **Copy the Template ID** (you'll need this for password reset)
+
+**Note:** You can use the same template for both ticket notifications and password resets if you prefer. Just make sure all variables are available.
+
+---
+
 ## Upgrading EmailJS
 
 If you need more than 200 emails/month, you can upgrade to a paid plan:
