@@ -4,44 +4,10 @@ import { hashPassword, verifyPassword } from './passwordUtils';
 const USERS_KEY = 'jeb_users';
 const AUTH_KEY = 'jeb_auth';
 
-// Pre-hashed passwords for default users
-// Admin password: admin123 -> SHA-256 hash
-const DEFAULT_ADMIN_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
-
-// Initialize with default admin and sample customers
-async function initializeUsers(): Promise<User[]> {
-  // Hash the default customer password
-  const customerPasswordHash = await hashPassword('customer123');
-  
-  const defaultUsers: User[] = [
-    {
-      id: 'admin-1',
-      email: 'admin@jebinnovations.sg',
-      password: DEFAULT_ADMIN_HASH,
-      name: 'JEB Admin',
-      role: 'admin',
-    },
-    {
-      id: 'customer-1',
-      email: 'customer@example.com',
-      password: customerPasswordHash,
-      name: 'John Doe',
-      role: 'customer',
-      phone: '+65 9123 4567',
-      company: 'ABC Corporation',
-    },
-  ];
-  localStorage.setItem(USERS_KEY, JSON.stringify(defaultUsers));
-  return defaultUsers;
-}
-
 export function getUsers(): User[] {
   const data = localStorage.getItem(USERS_KEY);
   if (!data) {
-    // Initialize with defaults (async, but we'll handle it)
-    initializeUsers().then(users => {
-      localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    });
+    // Return empty array - setup page will create users
     return [];
   }
   return JSON.parse(data);

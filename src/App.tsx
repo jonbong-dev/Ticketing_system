@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { Ticket, TicketStatus, TicketPriority, TicketCategory } from './types';
 import { getTickets, createTicket, updateTicket, addNote, deleteTicket } from './store';
 import { sendNewTicketEmail, sendUpdateToCustomer } from './emailService';
-import { getCurrentUser, logout } from './authService';
+import { getCurrentUser, logout, getUsers } from './authService';
 import { User } from './authTypes';
 import LoginPage from './LoginPage';
 import CustomerDashboard from './CustomerDashboard';
 import AdminSettings from './AdminSettings';
+import SetupPage from './SetupPage';
 import { LayoutDashboard, Ticket as TicketIcon, PlusCircle, Search, Filter, Clock, AlertTriangle, CheckCircle, ChevronRight, ArrowLeft, Trash2, MessageSquare, Shield, Server, Network, Monitor, Lock, Bell, Users, BarChart3, TrendingUp, UserCircle, LogOut, Mail, Settings } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 
@@ -57,6 +58,12 @@ function App() {
         </div>
       </div>
     );
+  }
+
+  // Check if this is first run (no users exist)
+  const users = getUsers();
+  if (users.length === 0) {
+    return <SetupPage onComplete={() => window.location.reload()} />;
   }
 
   // Show login page if not authenticated

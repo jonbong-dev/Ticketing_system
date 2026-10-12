@@ -1,77 +1,86 @@
-# JEB Ticketing System - Setup & Configuration Guide
+# JEB Ticketing System - Setup Guide
 
-## 🚀 Quick Start
+## 🚀 First-Time Setup
 
-### 1. Install Dependencies
+### Step 1: Deploy the Application
+
 ```bash
+# Install dependencies
 npm install
-```
 
-### 2. Configure Email Notifications (Optional but Recommended)
-
-Edit `src/emailConfig.ts` with your EmailJS credentials:
-
-```typescript
-export const EMAIL_CONFIG = {
-  SERVICE_ID: 'your_service_id',        // From EmailJS dashboard
-  TEMPLATE_ID: 'your_template_id',      // From EmailJS dashboard
-  PUBLIC_KEY: 'your_public_key',        // From EmailJS dashboard
-  
-  RECIPIENT_EMAIL: 'support@jebinnovations.sg',  // Your support email
-  COMPANY_NAME: 'JEB Innovations & Technologies Pte Ltd',
-  SUPPORT_PHONE: '+65 XXXX XXXX',
-}
-```
-
-See [EMAIL_SETUP.md](EMAIL_SETUP.md) for detailed EmailJS setup instructions.
-
-### 3. Build and Deploy
-```bash
+# Build the project
 npm run build
+
+# Deploy to Cloudflare Pages
 npx wrangler pages deploy dist
 ```
 
+### Step 2: Create Admin Account
+
+On first visit, you'll see the **Setup Page**:
+
+1. **Visit your deployed URL** (e.g., `https://your-app.pages.dev`)
+2. **You'll see the Welcome screen**
+3. **Click "Create Admin Account"**
+4. **Fill in the form:**
+   - **Admin Name:** Your name (e.g., "John Tan")
+   - **Admin Email:** Your email (e.g., `admin@jebinnovations.sg`)
+   - **Password:** Choose a strong password (minimum 6 characters)
+5. **Click "Create Admin Account"**
+6. **You'll see a success message** with your credentials
+7. **Click "Continue to Login"**
+
+### Step 3: Login
+
+1. **You'll be on the Login Page**
+2. **Click "Admin Portal"**
+3. **Enter your credentials:**
+   - Email: (the email you just set)
+   - Password: (the password you just set)
+4. **Click "Login"**
+5. **You're in!** Welcome to the Admin Dashboard
+
+### Step 4: Configure Email (Optional but Recommended)
+
+1. **Click "Settings"** in the top-right header
+2. **Choose email service:**
+   - **EmailJS** (recommended for Cloudflare) - See EMAIL_SETUP.md
+   - **SMTP** (requires backend) - See ADMIN_SETTINGS_GUIDE.md
+3. **Configure credentials**
+4. **Click "Save Configuration"**
+5. **Click "Test Configuration"** to verify
+
 ---
 
-## 🔐 Default Login Credentials
+## 🔐 Security Notes
 
-**⚠️ IMPORTANT:** Change these credentials immediately after first login!
+### No Default Credentials
+- ✅ **No hardcoded passwords** - You create your own admin account
+- ✅ **First-run setup** - Ensures only you have access
+- ✅ **Strong passwords** - Minimum 6 characters recommended
+- ✅ **Password hashing** - SHA-256 encryption
 
-### Admin Account
-- **Email:** `admin@jebinnovations.sg`
-- **Password:** `admin123`
-- **Access:** Full admin dashboard with all ticket management features
+### Best Practices
+1. **Use a strong password:**
+   - At least 12 characters
+   - Mix of uppercase, lowercase, numbers, symbols
+   - No common words or patterns
 
-### Sample Customer Account
-- **Email:** `customer@example.com`
-- **Password:** `customer123`
-- **Access:** Customer dashboard (sees only their own tickets)
+2. **Keep credentials secure:**
+   - Don't share admin credentials
+   - Use a password manager
+   - Enable 2FA on your email account
 
----
-
-## 🔒 Security Features
-
-### Password Hashing
-- All passwords are hashed using SHA-256 before storage
-- Passwords are never stored in plain text
-- Hashing is done client-side using Web Crypto API
-
-### Authentication
-- Role-based access control (Admin vs Customer)
-- Session management via localStorage
-- Automatic logout on session expiry
-- Customers cannot access admin features
-
-### Data Isolation
-- Customers see only their own tickets
-- Admins see all tickets
-- Complete separation of concerns
+3. **Regular maintenance:**
+   - Change password periodically
+   - Monitor login activity
+   - Backup localStorage data
 
 ---
 
 ## 📧 Email Configuration
 
-### Option 1: EmailJS (Recommended - No Backend Required)
+### EmailJS (Recommended)
 
 **Pros:**
 - ✅ Works on Cloudflare Pages free tier
@@ -80,94 +89,65 @@ npx wrangler pages deploy dist
 - ✅ Easy setup
 
 **Setup:**
-1. Sign up at [EmailJS.com](https://www.emailjs.com/)
-2. Create an email service (Gmail, Outlook, etc.)
+1. Sign up at https://www.emailjs.com/
+2. Create email service (Gmail, Outlook, etc.)
 3. Create email templates
-4. Update `src/emailConfig.ts` with your credentials
+4. Configure in Admin Settings
+5. Test configuration
 
-**Templates Needed:**
-1. **New Ticket Notification** - Sent to admin when customer creates ticket
-2. **Update Notification** - Sent to customer when admin adds update
+**See:** [EMAIL_SETUP.md](EMAIL_SETUP.md) for detailed instructions
 
-### Option 2: SMTP via Backend (Advanced)
+### SMTP (Advanced)
 
-If you need more control or higher volume:
+**Pros:**
+- ✅ Full control
+- ✅ Higher volume
+- ✅ Custom email servers
 
 **Requirements:**
-- Cloudflare Workers (paid plan for SMTP)
-- OR external backend service
-- SMTP server credentials
+- Backend server or Cloudflare Worker
+- SMTP credentials
 
-**Setup:**
-1. Create a Cloudflare Worker to handle email sending
-2. Update `src/emailService.ts` to call your worker API
-3. Configure SMTP credentials in worker
-
-**Example SMTP Services:**
-- SendGrid (free tier: 100 emails/day)
-- Mailgun (free tier: 5,000 emails/month)
-- AWS SES (pay-as-you-go)
-- Your own SMTP server
+**See:** [ADMIN_SETTINGS_GUIDE.md](ADMIN_SETTINGS_GUIDE.md) for detailed instructions
 
 ---
 
-## 👥 User Management
+## 👥 Adding Users
 
-### Default Users
-The system comes with two pre-configured users (see credentials above).
+### Admin Users
+Currently, only one admin account can be created during setup. To add more admins:
+1. Edit the code to add additional admin users
+2. Or share the admin credentials securely
 
-### Adding New Admin Users
-Edit `src/authService.ts` and add to the `initializeUsers()` function:
+### Customer Users
+Customers can self-register:
+1. Go to login page
+2. Click "Customer Portal"
+3. Click "Don't have an account? Register here"
+4. Fill in registration form
+5. Auto-login after registration
 
-```typescript
-{
-  id: 'admin-2',
-  email: 'tech@jebinnovations.sg',
-  password: 'hashed_password_here', // Use SHA-256 hash
-  name: 'Tech Support',
-  role: 'admin',
-}
-```
+---
 
-To generate password hash:
+## 🔄 Resetting the System
+
+If you need to start fresh (e.g., forgot admin password):
+
+### Option 1: Clear Browser Data
+1. Open browser DevTools (F12)
+2. Go to **Application** → **Local Storage**
+3. Delete all `jeb_*` keys
+4. Refresh the page
+5. Setup page will appear again
+
+### Option 2: Clear via Console
 ```javascript
-// Run this in browser console
-const password = 'your_password';
-const encoder = new TextEncoder();
-const data = encoder.encode(password);
-const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-const hashArray = Array.from(new Uint8Array(hashBuffer));
-const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-console.log(hashHex);
+// Run in browser console
+localStorage.clear();
+location.reload();
 ```
 
-### Customer Registration
-Customers can self-register via the login page:
-1. Click "Customer Portal"
-2. Click "Don't have an account? Register here"
-3. Fill in registration form
-4. Auto-login after registration
-
----
-
-## 🎨 Customization
-
-### Change Company Branding
-Edit the following files:
-- `src/LoginPage.tsx` - Landing page branding
-- `src/App.tsx` - Admin dashboard header
-- `src/CustomerDashboard.tsx` - Customer dashboard header
-
-### Change Color Scheme
-The app uses Tailwind CSS. Update color classes:
-- Primary blue: `bg-blue-600`, `text-blue-600`
-- Search for these classes and replace with your brand colors
-
-### Add Custom Fields
-Edit `src/types.ts` to add new ticket fields, then update:
-- `src/App.tsx` - Admin forms
-- `src/CustomerDashboard.tsx` - Customer forms
-- `src/emailService.ts` - Email templates
+**⚠️ Warning:** This will delete all tickets and users!
 
 ---
 
@@ -178,18 +158,19 @@ All data is stored in browser localStorage:
 - `jeb_auth` - Current session
 - `jeb_tickets` - All tickets
 - `jeb_ticket_counter` - Ticket number counter
+- `jeb_email_config` - Email configuration
 
 ### Backup Data
-To backup all data:
 ```javascript
 // Run in browser console
 const backup = {
   users: localStorage.getItem('jeb_users'),
   tickets: localStorage.getItem('jeb_tickets'),
   counter: localStorage.getItem('jeb_ticket_counter'),
+  emailConfig: localStorage.getItem('jeb_email_config'),
 };
 console.log(JSON.stringify(backup));
-// Copy the output and save to a file
+// Copy and save to a file
 ```
 
 ### Restore Data
@@ -199,87 +180,80 @@ const backup = {
   users: '...', // Paste your backup
   tickets: '...',
   counter: '...',
+  emailConfig: '...',
 };
 localStorage.setItem('jeb_users', backup.users);
 localStorage.setItem('jeb_tickets', backup.tickets);
 localStorage.setItem('jeb_ticket_counter', backup.counter);
+localStorage.setItem('jeb_email_config', backup.emailConfig);
 location.reload();
 ```
 
 ---
 
-## 🚨 Troubleshooting
+## ✅ Pre-Launch Checklist
 
-### "Invalid email or password"
-- Check if you're using the correct credentials
-- Verify email and password are typed correctly
-- Try clearing browser cache and localStorage
-
-### Email notifications not working
-- Check `src/emailConfig.ts` has correct credentials
-- Verify EmailJS account is active
-- Check EmailJS dashboard for error logs
-- Ensure you haven't exceeded 200 emails/month limit
-
-### Customers can't see their tickets
-- Verify customer email matches ticket's `customerEmail` field
-- Check browser console for errors
-- Ensure customer is logged in with correct account
-
-### Admin can't send updates
-- Check EmailJS configuration
-- Verify customer has valid email address
-- Check browser console for errors
-
----
-
-## 📞 Support
-
-For technical support:
-- EmailJS Documentation: https://www.emailjs.com/docs/
-- Cloudflare Pages: https://developers.cloudflare.com/pages/
-- React Documentation: https://react.dev/
-
----
-
-## ✅ Pre-Deployment Checklist
-
-- [ ] Change default admin password
-- [ ] Change default customer password (or delete sample account)
-- [ ] Configure EmailJS credentials
-- [ ] Test customer login and registration
-- [ ] Test admin login
-- [ ] Test ticket creation
+- [ ] Deploy to Cloudflare Pages
+- [ ] Create admin account via setup page
+- [ ] Login successfully
+- [ ] Configure email service (EmailJS or SMTP)
 - [ ] Test email notifications
-- [ ] Test "Send to Customer" feature
+- [ ] Test customer registration
+- [ ] Test ticket creation
+- [ ] Test forgot password feature
 - [ ] Backup initial data
-- [ ] Deploy to production
-- [ ] Test on live site
+- [ ] Document admin credentials securely
 
 ---
 
-## 🔐 Security Best Practices
+## 🆘 Troubleshooting
 
-1. **Change Default Passwords** - Immediately after first login
-2. **Use Strong Passwords** - Minimum 12 characters, mixed case, numbers, symbols
-3. **Regular Backups** - Backup localStorage data regularly
-4. **Monitor EmailJS** - Check for unusual activity
-5. **Update Dependencies** - Run `npm audit` and update packages regularly
-6. **HTTPS Only** - Ensure site is served over HTTPS (Cloudflare does this automatically)
-7. **Limit Admin Access** - Only give admin access to trusted staff
-8. **Review Access Logs** - Monitor who is accessing the system
+### "Invalid credentials" error
+- Make sure you're using the credentials you created during setup
+- Check for typos in email/password
+- Try clearing browser cache
+- If forgot password, use "Forgot Password" feature
+
+### Setup page doesn't appear
+- Clear localStorage (see Resetting the System above)
+- Refresh the page
+- Check browser console for errors
+
+### Email not sending
+- Check email configuration in Admin Settings
+- Verify EmailJS/SMTP credentials
+- Check EmailJS dashboard for errors
+- Test configuration again
+
+### Can't access admin features
+- Make sure you logged in as admin (not customer)
+- Check that you created an admin account during setup
+- Verify you're on the admin portal, not customer portal
 
 ---
 
 ## 📚 Additional Documentation
 
-- [README.md](README.md) - Main documentation
-- [DUAL_PORTAL_GUIDE.md](DUAL_PORTAL_GUIDE.md) - Dual portal system guide
-- [EMAIL_SETUP.md](EMAIL_SETUP.md) - EmailJS setup guide
-- [CUSTOMER_PORTAL_GUIDE.md](CUSTOMER_PORTAL_GUIDE.md) - Customer portal features
+- **[README.md](README.md)** - Main documentation
+- **[EMAIL_SETUP.md](EMAIL_SETUP.md)** - EmailJS setup guide
+- **[ADMIN_SETTINGS_GUIDE.md](ADMIN_SETTINGS_GUIDE.md)** - Admin settings and SMTP
+- **[DUAL_PORTAL_GUIDE.md](DUAL_PORTAL_GUIDE.md)** - Dual portal system
+- **[ADMIN_CREDENTIALS_AND_FORGOT_PASSWORD.md](ADMIN_CREDENTIALS_AND_FORGOT_PASSWORD.md)** - Password reset
+- **[SECURITY_UPDATES.md](SECURITY_UPDATES.md)** - Security features
+
+---
+
+## 🎯 Quick Start Summary
+
+1. **Deploy:** `npm run build && npx wrangler pages deploy dist`
+2. **Setup:** Visit URL → Create admin account
+3. **Login:** Use your new credentials
+4. **Configure:** Set up email in Settings
+5. **Test:** Create test ticket, verify email
+6. **Go Live:** Share customer portal URL
 
 ---
 
 **Last Updated:** 2024
-**Version:** 1.0.0
-**Developed for:** JEB Innovations & Technologies Pte Ltd
+**Version:** 1.4.0 (First-Time Setup)
+**Status:** ✅ Complete and Secure
