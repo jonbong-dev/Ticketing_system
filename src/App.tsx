@@ -6,10 +6,11 @@ import { getCurrentUser, logout } from './authService';
 import { User } from './authTypes';
 import LoginPage from './LoginPage';
 import CustomerDashboard from './CustomerDashboard';
-import { LayoutDashboard, Ticket as TicketIcon, PlusCircle, Search, Filter, Clock, AlertTriangle, CheckCircle, ChevronRight, ArrowLeft, Trash2, MessageSquare, Shield, Server, Network, Monitor, Lock, Bell, Users, BarChart3, TrendingUp, UserCircle, LogOut, Mail } from 'lucide-react';
+import AdminSettings from './AdminSettings';
+import { LayoutDashboard, Ticket as TicketIcon, PlusCircle, Search, Filter, Clock, AlertTriangle, CheckCircle, ChevronRight, ArrowLeft, Trash2, MessageSquare, Shield, Server, Network, Monitor, Lock, Bell, Users, BarChart3, TrendingUp, UserCircle, LogOut, Mail, Settings } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 
-type View = 'dashboard' | 'tickets' | 'create' | 'detail';
+type View = 'dashboard' | 'tickets' | 'create' | 'detail' | 'settings';
 
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -160,6 +161,7 @@ function App() {
                 {currentView === 'tickets' && 'Ticket Management'}
                 {currentView === 'create' && 'Create New Ticket'}
                 {currentView === 'detail' && `Ticket ${selectedTicket?.ticketNumber || ''}`}
+                {currentView === 'settings' && 'Settings'}
               </h2>
             </div>
             <div className="flex items-center gap-3">
@@ -173,6 +175,14 @@ function App() {
                   className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-64"
                 />
               </div>
+              <button
+                onClick={() => setCurrentView('settings')}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                title="Settings"
+              >
+                <Settings size={16} />
+                Settings
+              </button>
               <button
                 onClick={handleLogout}
                 className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
@@ -230,6 +240,9 @@ function App() {
               onAddNote={(note) => { addNote(selectedTicket.id, note); refreshTickets(); }}
               onDelete={() => { deleteTicket(selectedTicket.id); refreshTickets(); setCurrentView('tickets'); }}
             />
+          )}
+          {currentView === 'settings' && (
+            <AdminSettings onBack={() => setCurrentView('dashboard')} />
           )}
         </div>
       </main>
