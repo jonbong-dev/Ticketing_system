@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Ticket, TicketStatus, TicketPriority, TicketCategory } from './types';
 import { getTickets, createTicket, updateTicket, addNote, deleteTicket } from './store';
-import { LayoutDashboard, Ticket as TicketIcon, PlusCircle, Search, Filter, Clock, AlertTriangle, CheckCircle, ChevronRight, ArrowLeft, Trash2, MessageSquare, Shield, Server, Network, Monitor, Lock, Bell, Users, BarChart3, TrendingUp } from 'lucide-react';
+import { sendNewTicketEmail } from './emailService';
+import { LayoutDashboard, Ticket as TicketIcon, PlusCircle, Search, Filter, Clock, AlertTriangle, CheckCircle, ChevronRight, ArrowLeft, Trash2, MessageSquare, Shield, Server, Network, Monitor, Lock, Bell, Users, BarChart3, TrendingUp, UserCircle } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
+import CustomerPortal from './CustomerPortal';
 
 type View = 'dashboard' | 'tickets' | 'create' | 'detail';
+type AppMode = 'admin' | 'customer';
 
 function App() {
+  const [appMode, setAppMode] = useState<AppMode>('admin');
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
@@ -47,6 +51,11 @@ function App() {
     critical: tickets.filter(t => t.priority === 'critical' && t.status !== 'resolved' && t.status !== 'closed').length,
     high: tickets.filter(t => t.priority === 'high' && t.status !== 'resolved' && t.status !== 'closed').length,
   };
+
+  // If customer mode, show customer portal
+  if (appMode === 'customer') {
+    return <CustomerPortal onBack={() => setAppMode('admin')} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -129,6 +138,14 @@ function App() {
                 />
               </div>
               <button
+                onClick={() => setAppMode('customer')}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                title="Switch to Customer Portal"
+              >
+                <UserCircle size={16} />
+                Customer Portal
+              </button>
+              <button
                 onClick={() => setCurrentView('create')}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
               >
@@ -159,7 +176,13 @@ function App() {
           )}
           {currentView === 'create' && (
             <TicketFormView
-              onSubmit={(data) => { createTicket(data); refreshTickets(); setCurrentView('tickets'); }}
+              onSubmit={async (data) => { 
+                const newTicket = createTicket(data);
+                // Send email notification
+                await sendNewTicketEmail(newTicket);
+                refreshTickets(); 
+                setCurrentView('tickets'); 
+              }}
               onCancel={() => setCurrentView('tickets')}
             />
           )}

@@ -15,6 +15,8 @@ This ticketing system is designed for **JEB Innovations & Technologies Pte Ltd**
 ### Features
 - 📊 **Dashboard** with real-time ticket statistics
 - 🎫 **Full ticket lifecycle management** (Create → Track → Resolve)
+- 👥 **Customer Portal** - Public-facing portal for customers to submit tickets
+- 📧 **Email Notifications** - Automatic email alerts when tickets are created (via EmailJS)
 - 🔍 **Search & Filter** by status, priority, and category
 - 📝 **Notes & Updates** on each ticket
 - 🏢 **Customer & site information** tracking
@@ -214,9 +216,11 @@ jeb-ticketing-system/
 ├── .vscode/
 │   ├── launch.json          # VS Code debug configuration
 │   └── tasks.json           # VS Code task automation
-├── public/                   # Static assets
 ├── src/
-│   ├── App.tsx              # Main application component
+│   ├── App.tsx              # Main application component (Admin Dashboard)
+│   ├── CustomerPortal.tsx   # Customer-facing ticket submission portal
+│   ├── emailConfig.ts       # EmailJS configuration
+│   ├── emailService.ts      # Email notification service
 │   ├── types.ts             # TypeScript type definitions
 │   ├── store.ts             # Data management (localStorage)
 │   ├── index.css            # Global styles
@@ -225,8 +229,101 @@ jeb-ticketing-system/
 ├── package.json             # Dependencies & scripts
 ├── tsconfig.json            # TypeScript configuration
 ├── vite.config.js           # Vite build configuration
+├── wrangler.jsonc           # Cloudflare Pages configuration
+├── deploy.sh                # Deployment script (Mac/Linux)
+├── deploy.bat               # Deployment script (Windows)
+├── EMAIL_SETUP.md           # EmailJS setup guide
 └── README.md                # This file
 ```
+
+---
+
+## 👥 Customer Portal
+
+The system includes a customer-facing portal where customers can submit support tickets without needing admin access.
+
+### Accessing the Customer Portal
+1. In the admin dashboard, click the **"Customer Portal"** button in the top-right corner
+2. Share the URL with your customers (they can bookmark it)
+3. Customers fill out the form with their contact details and issue description
+4. Upon submission:
+   - A ticket is automatically created in the system
+   - An email notification is sent to your support team
+   - The customer receives a ticket number for reference
+
+### Customer Portal Features
+- ✅ Clean, professional interface branded for JEB Innovations
+- ✅ Form validation for required fields
+- ✅ Category selection (IT & Physical Security)
+- ✅ Priority level selection
+- ✅ Automatic ticket number generation
+- ✅ Email notification to support team
+- ✅ Confirmation screen with next steps
+
+---
+
+## 📧 Email Notifications
+
+The system can send email notifications when new tickets are created. This uses **EmailJS** (a client-side email service that works on Cloudflare Pages free tier).
+
+### Setup Email Notifications
+
+1. **Sign up for EmailJS** (free tier: 200 emails/month)
+   - Visit [https://www.emailjs.com/](https://www.emailjs.com/)
+   - Create a free account
+
+2. **Configure Email Service**
+   - Add an email service (Gmail, Outlook, SendGrid, etc.)
+   - Create an email template
+   - Get your Service ID, Template ID, and Public Key
+
+3. **Update Configuration**
+   - Open `src/emailConfig.ts`
+   - Replace the placeholder values with your EmailJS credentials:
+   ```typescript
+   export const EMAIL_CONFIG = {
+     SERVICE_ID: 'your_service_id',
+     TEMPLATE_ID: 'your_template_id',
+     PUBLIC_KEY: 'your_public_key',
+     RECIPIENT_EMAIL: 'support@jebinnovations.sg',
+     COMPANY_NAME: 'JEB Innovations & Technologies Pte Ltd',
+     SUPPORT_PHONE: '+65 XXXX XXXX',
+   }
+   ```
+
+4. **Rebuild and Deploy**
+   ```bash
+   npm run build
+   npx wrangler pages deploy dist
+   ```
+
+### Detailed Setup Guide
+
+For step-by-step instructions with template examples, see **[EMAIL_SETUP.md](EMAIL_SETUP.md)**
+
+### Email Template Variables
+
+Your EmailJS template should include these variables:
+- `{{to_email}}` - Recipient email (your support email)
+- `{{from_name}}` - Customer name
+- `{{from_email}}` - Customer email
+- `{{from_phone}}` - Customer phone
+- `{{ticket_number}}` - Ticket number (e.g., JEB-0001)
+- `{{ticket_title}}` - Issue title
+- `{{ticket_description}}` - Issue description
+- `{{ticket_category}}` - Category (IT Infrastructure, CCTV, etc.)
+- `{{ticket_priority}}` - Priority level (Critical, High, Medium, Low)
+- `{{site_location}}` - Site address
+- `{{company_name}}` - Your company name
+- `{{support_phone}}` - Your support phone number
+
+### Without Email Configuration
+
+If you don't configure EmailJS:
+- ✅ Tickets are still created and stored locally
+- ✅ Customer portal still works
+- ⚠️ No email notifications are sent
+- ⚠️ You'll see a warning message in the customer portal
 
 ---
 
