@@ -81,12 +81,15 @@ Customers can access the portal by:
 - ✅ Instant ticket number
 - ✅ Clear next steps
 
-### For Your Team:
-- ✅ Automatic email notifications
+### For Your Team (Admin):
+- ✅ Automatic email notifications when tickets are created
 - ✅ All ticket details in one email
 - ✅ Direct reply-to customer email
 - ✅ Professional HTML formatting
 - ✅ Works without backend server
+- ✅ **Send email updates to customers** - Click "Send to Customer" button in ticket detail view
+- ✅ Add internal notes visible to customers in their dashboard
+- ✅ Full ticket management (status, priority, assignment)
 
 ---
 

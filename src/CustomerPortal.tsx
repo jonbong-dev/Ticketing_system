@@ -77,27 +77,21 @@ export default function CustomerPortal({ onBack }: CustomerPortalProps) {
             </div>
           </div>
 
-          {emailSent ? (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium text-green-800">Email notification sent</p>
-                  <p className="text-sm text-green-700 mt-1">Our support team has been notified and will contact you shortly.</p>
-                </div>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-medium text-green-800">
+                  {emailSent ? '✅ Email notification sent!' : '✅ Ticket created successfully!'}
+                </p>
+                <p className="text-sm text-green-700 mt-1">
+                  {emailSent 
+                    ? 'Our support team has been notified and will contact you shortly.'
+                    : 'Your ticket has been logged. Please send the email that opened in your email client to notify our team.'}
+                </p>
               </div>
             </div>
-          ) : (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium text-amber-800">Ticket created successfully</p>
-                  <p className="text-sm text-amber-700 mt-1">Your ticket has been logged. Our team will review and respond soon.</p>
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
 
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
             <h3 className="font-semibold text-gray-800 mb-3">What happens next?</h3>
@@ -184,14 +178,18 @@ export default function CustomerPortal({ onBack }: CustomerPortalProps) {
           </div>
 
           {!isEmailConfigured() && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="font-medium text-amber-800">Email notifications not configured</p>
-                  <p className="text-sm text-amber-700 mt-1">
-                    Please configure EmailJS in <code className="bg-amber-100 px-1 rounded">src/emailConfig.ts</code> to enable email notifications.
-                    Tickets will still be created and stored locally.
+                  <p className="font-medium text-blue-800">📧 Email Notification Mode</p>
+                  <p className="text-sm text-blue-700 mt-1">
+                    When you submit this form, your email client will open with the ticket details pre-filled. 
+                    Simply click <strong>Send</strong> to notify our support team.
+                  </p>
+                  <p className="text-xs text-blue-600 mt-2">
+                    💡 <em>For automatic email notifications, configure EmailJS in </em>
+                    <code className="bg-blue-100 px-1 rounded">src/emailConfig.ts</code>
                   </p>
                 </div>
               </div>

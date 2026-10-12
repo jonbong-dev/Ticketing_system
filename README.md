@@ -1,6 +1,6 @@
 # JEB Innovations & Technologies Pte Ltd - Ticketing System
 
-A professional IT & Physical Security support ticketing system built with React, Vite, and Tailwind CSS. Designed for deployment on Cloudflare Pages (free tier).
+A professional IT & Physical Security support ticketing system with **dual-portal architecture** built with React, Vite, and Tailwind CSS. Designed for deployment on Cloudflare Pages (free tier).
 
 ![JEB Ticketing System](https://img.shields.io/badge/JEB-Innovations-blue) ![React](https://img.shields.io/badge/React-18.2-61dafb) ![Tailwind](https://img.shields.io/badge/Tailwind-4.x-06b6d4)
 
@@ -12,11 +12,34 @@ This ticketing system is designed for **JEB Innovations & Technologies Pte Ltd**
 - **IT Services**: Infrastructure, Networking, Software, Hardware
 - **Physical Security**: CCTV Systems, Access Control, Alarm Systems
 
-### Features
-- 📊 **Dashboard** with real-time ticket statistics
+### 🎯 Dual-Portal Architecture
+
+The system features **two completely separate portals**:
+
+#### 1️⃣ **Customer Portal**
+- Customers log in with their own credentials
+- View only their own tickets
+- Submit new support requests
+- Track ticket status and updates
+- See admin responses and notes
+- **Cannot access admin features**
+
+#### 2️⃣ **Admin Portal**
+- JEB staff log in with admin credentials
+- View and manage ALL tickets
+- Assign tickets to technicians
+- Update ticket status and priority
+- Add internal notes
+- **Send email updates to customers**
+- Full dashboard with statistics
+
+### ✨ Key Features
+- 🔐 **Role-based authentication** (Customer vs Admin)
+- 📊 **Admin Dashboard** with real-time statistics
+- 👥 **Customer Dashboard** to view personal tickets
 - 🎫 **Full ticket lifecycle management** (Create → Track → Resolve)
-- 👥 **Customer Portal** - Public-facing portal for customers to submit tickets
-- 📧 **Email Notifications** - Automatic email alerts when tickets are created (via EmailJS)
+- 📧 **Email Notifications** - Automatic alerts when tickets are created
+- 📬 **Admin-to-Customer Updates** - Send email updates directly from tickets
 - 🔍 **Search & Filter** by status, priority, and category
 - 📝 **Notes & Updates** on each ticket
 - 🏢 **Customer & site information** tracking
@@ -55,6 +78,33 @@ npm run dev
 ```
 
 The application will start at `http://localhost:5173`
+
+---
+
+## 🔐 Login System
+
+### ⚠️ Default Credentials
+
+**See [SETUP_GUIDE.md](SETUP_GUIDE.md) for default login credentials and security setup instructions.**
+
+**Important:** Change default passwords immediately after first login!
+
+### How It Works
+
+1. **Landing Page** - Users see two options:
+   - Customer Portal (for customers)
+   - Admin Portal (for JEB staff)
+
+2. **Authentication** - Each portal has its own login:
+   - Customers can register for new accounts
+   - Admins use pre-configured credentials
+   - **Customers cannot see or access admin login**
+
+3. **Role-Based Routing**:
+   - Customers → Customer Dashboard (see only their tickets)
+   - Admins → Admin Dashboard (see all tickets, full control)
+
+4. **Logout** - Both portals have logout buttons to return to login page
 
 ### Step 4: Build for Production
 

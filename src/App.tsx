@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Ticket, TicketStatus, TicketPriority, TicketCategory } from './types';
 import { getTickets, createTicket, updateTicket, addNote, deleteTicket } from './store';
-import { sendNewTicketEmail } from './emailService';
-import { LayoutDashboard, Ticket as TicketIcon, PlusCircle, Search, Filter, Clock, AlertTriangle, CheckCircle, ChevronRight, ArrowLeft, Trash2, MessageSquare, Shield, Server, Network, Monitor, Lock, Bell, Users, BarChart3, TrendingUp, UserCircle } from 'lucide-react';
+import { sendNewTicketEmail, sendUpdateToCustomer } from './emailService';
+import { getCurrentUser, logout } from './authService';
+import { User } from './authTypes';
+import LoginPage from './LoginPage';
+import CustomerDashboard from './CustomerDashboard';
+import { LayoutDashboard, Ticket as TicketIcon, PlusCircle, Search, Filter, Clock, AlertTriangle, CheckCircle, ChevronRight, ArrowLeft, Trash2, MessageSquare, Shield, Server, Network, Monitor, Lock, Bell, Users, BarChart3, TrendingUp, UserCircle, LogOut, Mail } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
-import CustomerPortal from './CustomerPortal';
 
 type View = 'dashboard' | 'tickets' | 'create' | 'detail';
-type AppMode = 'admin' | 'customer';
 
 function App() {
-  const [appMode, setAppMode] = useState<AppMode>('admin');
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
@@ -21,6 +24,10 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
+    // Check if user is logged in
+    const user = getCurrentUser();
+    setCurrentUser(user);
+    setIsLoading(false);
     setTickets(getTickets());
   }, []);
 
@@ -28,6 +35,40 @@ function App() {
     setTickets(getTickets());
   };
 
+  const handleLogin = (user: User) => {
+    setCurrentUser(user);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setCurrentUser(null);
+  };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl font-bold text-white">JEB</span>
+          </div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login page if not authenticated
+  if (!currentUser) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  // Show customer dashboard for customers
+  if (currentUser.role === 'customer') {
+    return <CustomerDashboard user={currentUser} onLogout={handleLogout} />;
+  }
+
+  // Admin dashboard below
   const selectedTicket = tickets.find(t => t.id === selectedTicketId);
 
   const filteredTickets = tickets.filter(ticket => {
@@ -51,11 +92,6 @@ function App() {
     critical: tickets.filter(t => t.priority === 'critical' && t.status !== 'resolved' && t.status !== 'closed').length,
     high: tickets.filter(t => t.priority === 'high' && t.status !== 'resolved' && t.status !== 'closed').length,
   };
-
-  // If customer mode, show customer portal
-  if (appMode === 'customer') {
-    return <CustomerPortal onBack={() => setAppMode('admin')} />;
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -138,12 +174,12 @@ function App() {
                 />
               </div>
               <button
-                onClick={() => setAppMode('customer')}
+                onClick={handleLogout}
                 className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
-                title="Switch to Customer Portal"
+                title="Logout"
               >
-                <UserCircle size={16} />
-                Customer Portal
+                <LogOut size={16} />
+                Logout
               </button>
               <button
                 onClick={() => setCurrentView('create')}
@@ -571,9 +607,35 @@ function TicketDetailView({ ticket, onBack, onUpdate, onAddNote, onDelete }: { t
                 required
                 className="input-field"
               />
-              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                Add Note
-              </button>
+              <div className="flex gap-2">
+                <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                  Add Note
+                </button>
+                <button 
+                  type="button"
+                  onClick={async () => {
+                    if (noteText.trim() && noteAuthor.trim()) {
+                      // Add note first
+                      onAddNote({ author: noteAuthor, content: noteText });
+                      
+                      // Send email to customer
+                      const success = await sendUpdateToCustomer(ticket, noteAuthor, noteText);
+                      
+                      if (success) {
+                        alert('✅ Update sent to customer successfully!');
+                      } else {
+                        alert('⚠️ Note added but email could not be sent. Please configure EmailJS in src/emailConfig.ts');
+                      }
+                      
+                      setNoteText('');
+                    }
+                  }}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                >
+                  <Mail size={14} />
+                  Send to Customer
+                </button>
+              </div>
             </form>
           </div>
         </div>
