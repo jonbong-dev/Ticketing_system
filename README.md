@@ -83,17 +83,11 @@ The application will start at `http://localhost:5173`
 
 ## 🔐 Login System
 
-### Demo Credentials
+### ⚠️ Default Credentials
 
-#### Admin Login
-- **Email:** `admin@jebinnovations.sg`
-- **Password:** `admin123`
-- **Access:** Full admin dashboard with all ticket management features
+**See [SETUP_GUIDE.md](SETUP_GUIDE.md) for default login credentials and security setup instructions.**
 
-#### Customer Login
-- **Email:** `customer@example.com`
-- **Password:** `customer123`
-- **Access:** Customer dashboard to view and submit personal tickets
+**Important:** Change default passwords immediately after first login!
 
 ### How It Works
 

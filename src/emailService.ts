@@ -1,108 +1,101 @@
+import emailjs from '@emailjs/browser';
 import { EMAIL_CONFIG, EmailTemplateParams } from './emailConfig';
 import { Ticket } from './types';
 
-// Try to load EmailJS dynamically (only if configured)
-let emailjs: any = null;
+// Initialize EmailJS
+let isInitialized = false;
 
-async function loadEmailJS() {
-  if (emailjs) return emailjs;
-  if (!isEmailConfigured()) return null;
-  
-  try {
-    const module = await import('@emailjs/browser');
-    emailjs = module.default;
+function initializeEmailJS() {
+  if (!isInitialized && isEmailConfigured()) {
     emailjs.init(EMAIL_CONFIG.PUBLIC_KEY);
-    return emailjs;
-  } catch (error) {
-    console.warn('EmailJS not available, using mailto fallback');
-    return null;
+    isInitialized = true;
   }
 }
 
 /**
  * Send email notification when a new ticket is created
- * Uses EmailJS if configured, otherwise falls back to mailto:
+ * Returns true if email was sent successfully, false otherwise
  */
 export async function sendNewTicketEmail(ticket: Ticket): Promise<boolean> {
-  // Try EmailJS first
-  const emailjsInstance = await loadEmailJS();
-  
-  if (emailjsInstance && isEmailConfigured()) {
-    try {
-      const templateParams = buildTemplateParams(ticket);
-      const response = await emailjsInstance.send(
-        EMAIL_CONFIG.SERVICE_ID,
-        EMAIL_CONFIG.TEMPLATE_ID,
-        templateParams as unknown as Record<string, unknown>
-      );
-      console.log('Email sent via EmailJS:', response.status);
-      return true;
-    } catch (error) {
-      console.error('EmailJS failed, falling back to mailto:', error);
-      return openMailtoFallback(ticket);
-    }
+  if (!isEmailConfigured()) {
+    console.warn('EmailJS not configured. Email notifications disabled.');
+    return false;
   }
-  
-  // Fallback to mailto:
-  return openMailtoFallback(ticket);
+
+  initializeEmailJS();
+
+  try {
+    const templateParams: EmailTemplateParams = {
+      to_email: EMAIL_CONFIG.RECIPIENT_EMAIL,
+      from_name: ticket.customerName,
+      from_email: ticket.customerEmail,
+      from_phone: ticket.customerPhone,
+      ticket_number: ticket.ticketNumber,
+      ticket_title: ticket.title,
+      ticket_description: ticket.description,
+      ticket_category: formatCategory(ticket.category),
+      ticket_priority: ticket.priority.toUpperCase(),
+      site_location: ticket.siteLocation,
+      company_name: EMAIL_CONFIG.COMPANY_NAME,
+      support_phone: EMAIL_CONFIG.SUPPORT_PHONE,
+    };
+
+    const response = await emailjs.send(
+      EMAIL_CONFIG.SERVICE_ID,
+      EMAIL_CONFIG.TEMPLATE_ID,
+      templateParams as unknown as Record<string, unknown>
+    );
+
+    console.log('✅ Email sent successfully:', response.status, response.text);
+    return true;
+  } catch (error) {
+    console.error('❌ Failed to send email:', error);
+    return false;
+  }
 }
 
 /**
- * Build email template parameters
+ * Send update email to customer from admin
  */
-function buildTemplateParams(ticket: Ticket): EmailTemplateParams {
-  return {
-    to_email: EMAIL_CONFIG.RECIPIENT_EMAIL,
-    from_name: ticket.customerName,
-    from_email: ticket.customerEmail,
-    from_phone: ticket.customerPhone,
-    ticket_number: ticket.ticketNumber,
-    ticket_title: ticket.title,
-    ticket_description: ticket.description,
-    ticket_category: formatCategory(ticket.category),
-    ticket_priority: ticket.priority.toUpperCase(),
-    site_location: ticket.siteLocation,
-    company_name: EMAIL_CONFIG.COMPANY_NAME,
-    support_phone: EMAIL_CONFIG.SUPPORT_PHONE,
-  };
-}
+export async function sendUpdateToCustomer(
+  ticket: Ticket,
+  adminName: string,
+  message: string
+): Promise<boolean> {
+  if (!isEmailConfigured()) {
+    console.warn('EmailJS not configured. Email notifications disabled.');
+    return false;
+  }
 
-/**
- * Fallback: Open user's email client with pre-filled ticket details
- */
-function openMailtoFallback(ticket: Ticket): boolean {
-  const subject = `New Support Ticket: ${ticket.ticketNumber} - ${ticket.title}`;
-  
-  const body = `
-NEW SUPPORT TICKET RECEIVED
-=====================================
+  initializeEmailJS();
 
-Ticket Number: ${ticket.ticketNumber}
-Priority: ${ticket.priority.toUpperCase()}
-Category: ${formatCategory(ticket.category)}
-Site Location: ${ticket.siteLocation}
+  try {
+    const templateParams = {
+      to_email: ticket.customerEmail,
+      from_name: adminName,
+      ticket_number: ticket.ticketNumber,
+      ticket_title: ticket.title,
+      ticket_status: ticket.status.toUpperCase(),
+      ticket_priority: ticket.priority.toUpperCase(),
+      update_message: message,
+      company_name: EMAIL_CONFIG.COMPANY_NAME,
+      support_phone: EMAIL_CONFIG.SUPPORT_PHONE,
+    };
 
-CUSTOMER INFORMATION
--------------------------------------
-Name: ${ticket.customerName}
-Email: ${ticket.customerEmail}
-Phone: ${ticket.customerPhone}
+    // Use a separate template for customer updates (you'll need to create this in EmailJS)
+    // For now, we'll use the same template but with different parameters
+    const response = await emailjs.send(
+      EMAIL_CONFIG.SERVICE_ID,
+      EMAIL_CONFIG.TEMPLATE_ID, // You may want to create a separate template for updates
+      templateParams as unknown as Record<string, unknown>
+    );
 
-ISSUE DESCRIPTION
--------------------------------------
-${ticket.description}
-
-=====================================
-${EMAIL_CONFIG.COMPANY_NAME}
-Support: ${EMAIL_CONFIG.SUPPORT_PHONE}
-  `.trim();
-
-  const mailtoLink = `mailto:${EMAIL_CONFIG.RECIPIENT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  
-  // Open email client
-  window.location.href = mailtoLink;
-  
-  return true;
+    console.log('✅ Update email sent successfully:', response.status, response.text);
+    return true;
+  } catch (error) {
+    console.error('❌ Failed to send update email:', error);
+    return false;
+  }
 }
 
 /**

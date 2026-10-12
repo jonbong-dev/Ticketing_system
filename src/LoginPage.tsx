@@ -16,11 +16,11 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   const [company, setCompany] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    const user = login(email, password);
+    const user = await login(email, password);
     if (user) {
       onLogin(user);
     } else {
@@ -28,11 +28,11 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    const user = registerCustomer({
+    const user = await registerCustomer({
       email,
       password,
       name,
@@ -42,7 +42,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     
     if (user) {
       // Auto-login after registration
-      const loggedInUser = login(email, password);
+      const loggedInUser = await login(email, password);
       if (loggedInUser) {
         onLogin(loggedInUser);
       }
@@ -294,24 +294,6 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               >
                 Already have an account? Login here
               </button>
-            </div>
-          )}
-
-          {/* Demo Credentials */}
-          {(isCustomerLogin || isAdminLogin) && (
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-xs font-semibold text-gray-700 mb-2">Demo Credentials:</p>
-              {isCustomerLogin ? (
-                <div className="text-xs text-gray-600 space-y-1">
-                  <p><strong>Email:</strong> customer@example.com</p>
-                  <p><strong>Password:</strong> customer123</p>
-                </div>
-              ) : (
-                <div className="text-xs text-gray-600 space-y-1">
-                  <p><strong>Email:</strong> admin@jebinnovations.sg</p>
-                  <p><strong>Password:</strong> admin123</p>
-                </div>
-              )}
             </div>
           )}
         </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Ticket, TicketStatus, TicketPriority, TicketCategory } from './types';
 import { getTickets, createTicket, updateTicket, addNote, deleteTicket } from './store';
-import { sendNewTicketEmail } from './emailService';
+import { sendNewTicketEmail, sendUpdateToCustomer } from './emailService';
 import { getCurrentUser, logout } from './authService';
 import { User } from './authTypes';
 import LoginPage from './LoginPage';
@@ -613,16 +613,19 @@ function TicketDetailView({ ticket, onBack, onUpdate, onAddNote, onDelete }: { t
                 </button>
                 <button 
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
                     if (noteText.trim() && noteAuthor.trim()) {
                       // Add note first
                       onAddNote({ author: noteAuthor, content: noteText });
                       
-                      // Then open email to customer
-                      const subject = `Update on Your Support Ticket ${ticket.ticketNumber}`;
-                      const body = `Dear ${ticket.customerName},\n\nHere is an update on your support ticket ${ticket.ticketNumber}:\n\n${noteText}\n\n---\nTicket: ${ticket.title}\nStatus: ${ticket.status}\nPriority: ${ticket.priority}\n\nIf you have any questions, please don't hesitate to contact us.\n\nBest regards,\n${noteAuthor}\nJEB Innovations & Technologies Pte Ltd`;
+                      // Send email to customer
+                      const success = await sendUpdateToCustomer(ticket, noteAuthor, noteText);
                       
-                      window.open(`mailto:${ticket.customerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+                      if (success) {
+                        alert('✅ Update sent to customer successfully!');
+                      } else {
+                        alert('⚠️ Note added but email could not be sent. Please configure EmailJS in src/emailConfig.ts');
+                      }
                       
                       setNoteText('');
                     }
