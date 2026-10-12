@@ -86,7 +86,62 @@ The project includes a `.vscode/launch.json` file. To use it:
 
 ## ☁️ Deploying to Cloudflare Pages (Free Tier)
 
-### Method 1: Direct Upload (Easiest)
+### Method 1: Using Wrangler CLI (Recommended)
+
+The project includes a `wrangler.jsonc` configuration file for easy CLI deployment.
+
+#### Step 1: Install Wrangler
+
+```bash
+# Install globally
+npm install -g wrangler
+
+# Or use npx (no install needed)
+npx wrangler --version
+```
+
+#### Step 2: Login to Cloudflare
+
+```bash
+npx wrangler login
+```
+This opens a browser window to authenticate with your Cloudflare account.
+
+#### Step 3: Build & Deploy
+
+```bash
+# Build the project
+npm run build
+
+# Deploy to Cloudflare Pages
+npx wrangler pages deploy dist
+```
+
+That's it! Your site will be live at `https://jeb-ticketing-system.pages.dev`
+
+#### Local Preview (Optional)
+
+To preview the production build locally before deploying:
+
+```bash
+npx wrangler pages dev dist
+```
+Opens at `http://localhost:8788`
+
+#### Useful Wrangler Commands
+
+```bash
+# Check deployment status
+npx wrangler pages project list
+
+# Delete a deployment
+npx wrangler pages deployment delete <deployment-id>
+
+# View project details
+npx wrangler pages project get jeb-ticketing-system
+```
+
+### Method 2: Direct Upload via Dashboard
 
 1. Build the project:
    ```bash
@@ -100,7 +155,7 @@ The project includes a `.vscode/launch.json` file. To use it:
 6. Upload the entire `dist/` folder
 7. Click **Deploy site**
 
-### Method 2: Git Integration (Recommended)
+### Method 3: Git Integration (Auto-deploy on Push)
 
 1. Push your code to a Git repository (GitHub, GitLab, etc.)
 2. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)

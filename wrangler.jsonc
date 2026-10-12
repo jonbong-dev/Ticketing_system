@@ -1,0 +1,52 @@
+{
+  // =============================================================================
+  // JEB Innovations & Technologies Pte Ltd - Ticketing System
+  // Cloudflare Pages Configuration (Wrangler)
+  // =============================================================================
+  //
+  // USAGE:
+  //   1. Install wrangler globally:  npm install -g wrangler
+  //   2. Login to Cloudflare:        npx wrangler login
+  //   3. Build the project:          npm run build
+  //   4. Deploy to Cloudflare:       npx wrangler pages deploy dist
+  //
+  // For local development preview:
+  //   npx wrangler pages dev dist
+  //
+  // =============================================================================
+
+  // Project name (used as the subdomain: <name>.pages.dev)
+  "name": "jeb-ticketing-system",
+
+  // Compatibility date for Cloudflare Workers runtime
+  "compatibility_date": "2024-12-01",
+
+  // Pages configuration - points to the Vite build output directory
+  "pages_build_output_dir": "dist",
+
+  // Project metadata
+  "$schema": "node_modules/wrangler/schemas/wrangler.jsonc",
+
+  // Environment variables (optional - uncomment and customize as needed)
+  // "vars": {
+  //   "APP_NAME": "JEB Ticketing System",
+  //   "APP_VERSION": "1.0.0"
+  // },
+
+  // Custom domain configuration (optional - uncomment after setting up domain)
+  // "routes": [
+  //   { "pattern": "tickets.jebinnovations.sg", "zone_name": "jebinnovations.sg" }
+  // ],
+
+  // Build command (optional - Wrangler can run this before deploying)
+  // Uncomment if you want `wrangler deploy` to auto-build:
+  // "build": {
+  //   "command": "npm run build"
+  // },
+
+  // Development server settings
+  "dev": {
+    "port": 8788,
+    "local_protocol": "http"
+  }
+}
