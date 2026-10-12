@@ -86,6 +86,16 @@ The project includes a `.vscode/launch.json` file. To use it:
 
 ## ☁️ Deploying to Cloudflare Pages (Free Tier)
 
+### ⚠️ "Upload exceeds 1000 files" Error?
+
+If you see this error, you're uploading the **entire project folder** instead of just the `dist/` folder.
+
+**Solution**: Use the Wrangler CLI (Method 1 below) or make sure you're uploading ONLY the `dist/` folder in the dashboard.
+
+The `dist/` folder contains only 3-5 files (HTML, JS, CSS) and will upload without issues.
+
+---
+
 ### Method 1: Using Wrangler CLI (Recommended)
 
 The project includes a `wrangler.jsonc` configuration file for easy CLI deployment.
@@ -143,6 +153,8 @@ npx wrangler pages project get jeb-ticketing-system
 
 ### Method 2: Direct Upload via Dashboard
 
+> ⚠️ **IMPORTANT**: You must upload ONLY the `dist/` folder, NOT the entire project!
+
 1. Build the project:
    ```bash
    npm run build
@@ -152,8 +164,26 @@ npx wrangler pages project get jeb-ticketing-system
 3. Navigate to **Workers & Pages** → **Create**
 4. Select **Pages** → **Upload assets**
 5. Give your project a name (e.g., `jeb-ticketing`)
-6. Upload the entire `dist/` folder
+6. **Drag and drop ONLY the `dist/` folder** (not the project root!)
+   - Navigate into your project folder
+   - Select the `dist/` folder itself
+   - Drag it into the upload area
 7. Click **Deploy site**
+
+#### ⚠️ "Upload exceeds 1000 files" Error?
+
+This error means you're uploading the wrong folder. Make sure:
+- ✅ You're uploading the **`dist/`** folder (contains ~3-5 files)
+- ❌ NOT the project root folder (contains thousands of files from node_modules)
+
+The `dist/` folder should contain only:
+```
+dist/
+├── index.html
+└── assets/
+    ├── index-XXXXX.js
+    └── index-XXXXX.css
+```
 
 ### Method 3: Git Integration (Auto-deploy on Push)
 

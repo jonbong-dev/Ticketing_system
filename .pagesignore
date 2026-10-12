@@ -1,0 +1,40 @@
+# Cloudflare Pages ignore file
+# These files will NOT be uploaded to Cloudflare Pages
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Source files (only dist/ is needed)
+src/
+public/
+
+# Configuration files
+.vscode/
+.idea/
+*.config.js
+*.config.ts
+tsconfig.json
+*.json
+!package.json
+
+# Development files
+*.log
+.DS_Store
+.env*
+.git/
+.gitignore
+README.md
+wrangler.jsonc
+
+# Testing
+coverage/
+__tests__/
+*.test.*
+*.spec.*
+
+# Editor files
+*.swp
+*.swo
+*~
