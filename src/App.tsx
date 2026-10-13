@@ -8,10 +8,11 @@ import LoginPage from './LoginPage';
 import CustomerDashboard from './CustomerDashboard';
 import AdminSettings from './AdminSettings';
 import SetupPage from './SetupPage';
+import CustomerManagement from './CustomerManagement';
 import { LayoutDashboard, Ticket as TicketIcon, PlusCircle, Search, Filter, Clock, AlertTriangle, CheckCircle, ChevronRight, ArrowLeft, Trash2, MessageSquare, Shield, Server, Network, Monitor, Lock, Bell, Users, BarChart3, TrendingUp, UserCircle, LogOut, Mail, Settings } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 
-type View = 'dashboard' | 'tickets' | 'create' | 'detail' | 'settings';
+type View = 'dashboard' | 'tickets' | 'create' | 'detail' | 'settings' | 'customers';
 
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -142,6 +143,13 @@ function App() {
             <PlusCircle size={20} />
             {sidebarOpen && <span className="text-sm">New Ticket</span>}
           </button>
+          <button
+            onClick={() => setCurrentView('customers')}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${currentView === 'customers' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700/50'}`}
+          >
+            <Users size={20} />
+            {sidebarOpen && <span className="text-sm">Customers</span>}
+          </button>
         </nav>
 
         {sidebarOpen && (
@@ -169,6 +177,7 @@ function App() {
                 {currentView === 'create' && 'Create New Ticket'}
                 {currentView === 'detail' && `Ticket ${selectedTicket?.ticketNumber || ''}`}
                 {currentView === 'settings' && 'Settings'}
+                {currentView === 'customers' && 'Customer Management'}
               </h2>
             </div>
             <div className="flex items-center gap-3">
@@ -250,6 +259,9 @@ function App() {
           )}
           {currentView === 'settings' && (
             <AdminSettings onBack={() => setCurrentView('dashboard')} />
+          )}
+          {currentView === 'customers' && (
+            <CustomerManagement onBack={() => setCurrentView('dashboard')} />
           )}
         </div>
       </main>
