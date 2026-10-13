@@ -137,6 +137,8 @@ npx wrangler pages deploy dist
 
 If you need to start fresh (forgot password, want new admin, etc.):
 
+**🔒 Security Note:** The reset button is only available during initial setup (when no users exist). Once the system is configured, system reset must be done via browser console by administrators to prevent unauthorized access.
+
 ### Option 1: Clear via Browser DevTools
 1. Press `F12` to open DevTools
 2. Go to **Application** tab

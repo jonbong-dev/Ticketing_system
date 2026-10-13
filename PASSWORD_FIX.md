@@ -4,6 +4,14 @@
 
 The password verification system has been completely rewritten to fix the login issues.
 
+## 🔒 Security Update
+
+The "Reset System" button has been removed from the login page for security reasons. System reset is now only available:
+1. During initial setup (when no users exist)
+2. Via browser console by administrators
+
+This prevents unauthorized users from wiping the system and creating their own admin account.
+
 ---
 
 ## 🔄 What Changed

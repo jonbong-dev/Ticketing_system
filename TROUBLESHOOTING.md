@@ -10,15 +10,7 @@ If you're getting "Invalid email or password" even after creating an admin accou
 
 ### Step 1: Reset the System
 
-**Option A: Using the Reset Button**
-1. Go to the login page
-2. Scroll to the bottom
-3. Click **"Reset System (Start Fresh)"**
-4. Confirm the reset
-5. The setup page will appear
-6. Create a new admin account
-
-**Option B: Using Browser Console**
+**Using Browser Console (Admin Only)**
 1. Press `F12` to open Developer Tools
 2. Go to **Console** tab
 3. Paste this code and press Enter:
@@ -28,6 +20,8 @@ If you're getting "Invalid email or password" even after creating an admin accou
    ```
 4. The setup page will appear
 5. Create a new admin account
+
+**Note:** The reset button is only available during initial setup (when no users exist) for security reasons. Once the system is configured, system reset must be done via browser console by administrators.
 
 **Option C: Using Browser DevTools**
 1. Press `F12` to open Developer Tools
