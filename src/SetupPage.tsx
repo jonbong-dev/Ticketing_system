@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { registerCustomer, resetPassword } from './authService';
-import { hashPassword } from './passwordUtils';
+import { encodePassword } from './passwordUtils';
 import { User } from './authTypes';
 import { User as UserIcon, Mail, Lock, Shield, CheckCircle } from 'lucide-react';
 
@@ -15,7 +15,7 @@ export default function SetupPage({ onComplete }: SetupPageProps) {
   const [adminName, setAdminName] = useState('JEB Admin');
   const [error, setError] = useState('');
 
-  const handleCreateAdmin = async (e: React.FormEvent) => {
+  const handleCreateAdmin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -25,8 +25,8 @@ export default function SetupPage({ onComplete }: SetupPageProps) {
     }
 
     try {
-      // Hash the password
-      const hashedPassword = await hashPassword(adminPassword);
+      // Encode the password
+      const hashedPassword = encodePassword(adminPassword);
 
       // Create admin user directly in localStorage
       const adminUser: User = {

@@ -19,13 +19,13 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   const [resetSuccess, setResetSuccess] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
     console.log('Attempting login with:', { email, password });
     
-    const user = await login(email, password);
+    const user = login(email, password);
     
     console.log('Login result:', user);
     
@@ -36,11 +36,11 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    const user = await registerCustomer({
+    const user = registerCustomer({
       email,
       password,
       name,
@@ -50,7 +50,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     
     if (user) {
       // Auto-login after registration
-      const loggedInUser = await login(email, password);
+      const loggedInUser = login(email, password);
       if (loggedInUser) {
         onLogin(loggedInUser);
       }

@@ -1,5 +1,5 @@
 import { User, AuthState } from './authTypes';
-import { hashPassword, verifyPassword } from './passwordUtils';
+import { encodePassword, verifyPassword } from './passwordUtils';
 
 const USERS_KEY = 'jeb_users';
 const AUTH_KEY = 'jeb_auth';
@@ -17,7 +17,7 @@ export function saveUsers(users: User[]): void {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
-export async function login(email: string, password: string): Promise<User | null> {
+export function login(email: string, password: string): User | null {
   const users = getUsers();
   
   console.log('Available users:', users);
@@ -34,7 +34,7 @@ export async function login(email: string, password: string): Promise<User | nul
   console.log('Stored password hash:', user.password);
   
   // Verify password
-  const isValid = await verifyPassword(password, user.password);
+  const isValid = verifyPassword(password, user.password);
   
   console.log('Password verification result:', isValid);
   
@@ -63,13 +63,13 @@ export function getCurrentUser(): User | null {
   return authState.isAuthenticated ? authState.user : null;
 }
 
-export async function registerCustomer(userData: {
+export function registerCustomer(userData: {
   email: string;
   password: string;
   name: string;
   phone?: string;
   company?: string;
-}): Promise<User | null> {
+}): User | null {
   const users = getUsers();
   
   // Check if email already exists
@@ -77,8 +77,8 @@ export async function registerCustomer(userData: {
     return null;
   }
   
-  // Hash the password
-  const hashedPassword = await hashPassword(userData.password);
+  // Encode the password
+  const hashedPassword = encodePassword(userData.password);
   
   const newUser: User = {
     id: `customer-${Date.now()}`,
@@ -96,7 +96,7 @@ export async function registerCustomer(userData: {
   return newUser;
 }
 
-export async function resetPassword(email: string, newPassword: string): Promise<boolean> {
+export function resetPassword(email: string, newPassword: string): boolean {
   const users = getUsers();
   const userIndex = users.findIndex(u => u.email === email);
   
@@ -104,8 +104,8 @@ export async function resetPassword(email: string, newPassword: string): Promise
     return false;
   }
   
-  // Hash the new password
-  const hashedPassword = await hashPassword(newPassword);
+  // Encode the new password
+  const hashedPassword = encodePassword(newPassword);
   users[userIndex].password = hashedPassword;
   
   saveUsers(users);
