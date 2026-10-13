@@ -96,9 +96,21 @@ export default function SetupPage({ onComplete }: SetupPageProps) {
 
           <button
             onClick={() => setStep('admin')}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors mb-3"
           >
             Create Admin Account
+          </button>
+
+          <button
+            onClick={() => {
+              if (confirm('This will clear all data and start fresh. Are you sure?')) {
+                localStorage.clear();
+                window.location.reload();
+              }
+            }}
+            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            Reset System (Clear All Data)
           </button>
         </div>
       </div>

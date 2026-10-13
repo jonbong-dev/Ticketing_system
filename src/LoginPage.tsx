@@ -23,11 +23,16 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     e.preventDefault();
     setError('');
     
+    console.log('Attempting login with:', { email, password });
+    
     const user = await login(email, password);
+    
+    console.log('Login result:', user);
+    
     if (user) {
       onLogin(user);
     } else {
-      setError('Invalid email or password');
+      setError('Invalid email or password. Please check your credentials or use "Reset System" to start fresh.');
     }
   };
 
@@ -384,6 +389,21 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               </div>
             </>
           )}
+
+          {/* Reset System Button */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <button
+              onClick={() => {
+                if (confirm('This will clear all data and restart the setup process. Are you sure?')) {
+                  localStorage.clear();
+                  window.location.reload();
+                }
+              }}
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 py-2 rounded-lg text-xs font-medium transition-colors"
+            >
+              Reset System (Start Fresh)
+            </button>
+          </div>
         </div>
       </div>
     </div>

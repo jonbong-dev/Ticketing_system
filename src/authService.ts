@@ -19,14 +19,24 @@ export function saveUsers(users: User[]): void {
 
 export async function login(email: string, password: string): Promise<User | null> {
   const users = getUsers();
+  
+  console.log('Available users:', users);
+  console.log('Looking for email:', email);
+  
   const user = users.find(u => u.email === email);
   
   if (!user) {
+    console.log('User not found');
     return null;
   }
   
+  console.log('User found:', user);
+  console.log('Stored password hash:', user.password);
+  
   // Verify password
   const isValid = await verifyPassword(password, user.password);
+  
+  console.log('Password verification result:', isValid);
   
   if (isValid) {
     const authState: AuthState = {
@@ -37,6 +47,7 @@ export async function login(email: string, password: string): Promise<User | nul
     return user;
   }
   
+  console.log('Password verification failed');
   return null;
 }
 
