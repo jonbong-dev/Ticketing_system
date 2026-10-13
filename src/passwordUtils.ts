@@ -1,16 +1,22 @@
-// Simple password hashing using SHA-256 (browser-compatible)
-// For production, consider using bcrypt or similar on a backend
+// Simple password encoding/decoding for localStorage
+// Note: This is basic encoding, not encryption. For production, use a backend with proper authentication.
 
-export async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
+export function encodePassword(password: string): string {
+  // Simple base64 encoding for demo purposes
+  // In production, use proper backend authentication with bcrypt/argon2
+  return btoa(password);
 }
 
-export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  const hash = await hashPassword(password);
-  return hash === hashedPassword;
+export function decodePassword(encoded: string): string {
+  try {
+    return atob(encoded);
+  } catch {
+    return '';
+  }
+}
+
+export function verifyPassword(inputPassword: string, storedPassword: string): boolean {
+  // Decode the stored password and compare
+  const decoded = decodePassword(storedPassword);
+  return inputPassword === decoded;
 }

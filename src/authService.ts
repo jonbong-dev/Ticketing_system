@@ -1,47 +1,13 @@
 import { User, AuthState } from './authTypes';
-import { hashPassword, verifyPassword } from './passwordUtils';
+import { encodePassword, verifyPassword } from './passwordUtils';
 
 const USERS_KEY = 'jeb_users';
 const AUTH_KEY = 'jeb_auth';
 
-// Pre-hashed passwords for default users
-// Admin password: admin123 -> SHA-256 hash
-const DEFAULT_ADMIN_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
-
-// Initialize with default admin and sample customers
-async function initializeUsers(): Promise<User[]> {
-  // Hash the default customer password
-  const customerPasswordHash = await hashPassword('customer123');
-  
-  const defaultUsers: User[] = [
-    {
-      id: 'admin-1',
-      email: 'admin@jebinnovations.sg',
-      password: DEFAULT_ADMIN_HASH,
-      name: 'JEB Admin',
-      role: 'admin',
-    },
-    {
-      id: 'customer-1',
-      email: 'customer@example.com',
-      password: customerPasswordHash,
-      name: 'John Doe',
-      role: 'customer',
-      phone: '+65 9123 4567',
-      company: 'ABC Corporation',
-    },
-  ];
-  localStorage.setItem(USERS_KEY, JSON.stringify(defaultUsers));
-  return defaultUsers;
-}
-
 export function getUsers(): User[] {
   const data = localStorage.getItem(USERS_KEY);
   if (!data) {
-    // Initialize with defaults (async, but we'll handle it)
-    initializeUsers().then(users => {
-      localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    });
+    // Return empty array - setup page will create users
     return [];
   }
   return JSON.parse(data);
@@ -51,16 +17,26 @@ export function saveUsers(users: User[]): void {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
-export async function login(email: string, password: string): Promise<User | null> {
+export function login(email: string, password: string): User | null {
   const users = getUsers();
+  
+  console.log('Available users:', users);
+  console.log('Looking for email:', email);
+  
   const user = users.find(u => u.email === email);
   
   if (!user) {
+    console.log('User not found');
     return null;
   }
   
+  console.log('User found:', user);
+  console.log('Stored password hash:', user.password);
+  
   // Verify password
-  const isValid = await verifyPassword(password, user.password);
+  const isValid = verifyPassword(password, user.password);
+  
+  console.log('Password verification result:', isValid);
   
   if (isValid) {
     const authState: AuthState = {
@@ -71,6 +47,7 @@ export async function login(email: string, password: string): Promise<User | nul
     return user;
   }
   
+  console.log('Password verification failed');
   return null;
 }
 
@@ -86,13 +63,13 @@ export function getCurrentUser(): User | null {
   return authState.isAuthenticated ? authState.user : null;
 }
 
-export async function registerCustomer(userData: {
+export function registerCustomer(userData: {
   email: string;
   password: string;
   name: string;
   phone?: string;
   company?: string;
-}): Promise<User | null> {
+}): User | null {
   const users = getUsers();
   
   // Check if email already exists
@@ -100,8 +77,8 @@ export async function registerCustomer(userData: {
     return null;
   }
   
-  // Hash the password
-  const hashedPassword = await hashPassword(userData.password);
+  // Encode the password
+  const hashedPassword = encodePassword(userData.password);
   
   const newUser: User = {
     id: `customer-${Date.now()}`,
@@ -119,7 +96,7 @@ export async function registerCustomer(userData: {
   return newUser;
 }
 
-export async function resetPassword(email: string, newPassword: string): Promise<boolean> {
+export function resetPassword(email: string, newPassword: string): boolean {
   const users = getUsers();
   const userIndex = users.findIndex(u => u.email === email);
   
@@ -127,8 +104,8 @@ export async function resetPassword(email: string, newPassword: string): Promise
     return false;
   }
   
-  // Hash the new password
-  const hashedPassword = await hashPassword(newPassword);
+  // Encode the new password
+  const hashedPassword = encodePassword(newPassword);
   users[userIndex].password = hashedPassword;
   
   saveUsers(users);

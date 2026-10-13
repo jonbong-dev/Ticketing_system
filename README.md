@@ -45,6 +45,8 @@ The system features **two completely separate portals**:
 - 🏢 **Customer & site information** tracking
 - 🎨 **Clean, responsive UI** optimized for desktop and mobile
 - 💾 **Local Storage persistence** (no backend required for free tier)
+- ⚙️ **Admin Settings** - Configure email services (EmailJS or SMTP) from UI
+- 🔑 **Forgot Password** - Email-based password recovery system
 
 ---
 
